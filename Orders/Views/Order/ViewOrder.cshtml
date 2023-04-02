@@ -1,0 +1,41 @@
+@model Order
+@{
+    ViewData["Title"] = "Просмотр заказа";
+}
+
+<h1>Заказ №@Model.Number</h1>
+
+<p>Дата заказа: @Model.Date.ToShortDateString()</p>
+<p>Поставщик: @Model.Provider?.Name</p>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Наименование</th>
+        <th>Количество</th>
+        <th>Единица измерения</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.OrderItems)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.Quantity</td>
+            <td>@item.Unit</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a asp-action="EditOrder" asp-route-id="@Model.Id" class="btn btn-primary">Редактировать</a>
+
+<form asp-action="DeleteOrder" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить заказ?');">
+
+    <button type="submit" class="btn btn-danger">Удалить</button>
+</form>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert" asp-validation-summary="All"></div>
+}

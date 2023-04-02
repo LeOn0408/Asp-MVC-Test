@@ -1,0 +1,91 @@
+	
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Orders.ViewModels.CreateOrUpdateViewModel
+
+
+<form asp-action="SaveOrder" method="post">
+    <input type="hidden" name="Order.Id" value="@Model.Id" />
+    <div class="form-group">
+        <label asp-for="Order.Number">Номер заказа</label>
+        <input asp-for="Order.Number" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="Order.Date">Дата заказа</label>
+        <input asp-for="Order.Date" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="Order.Provider">Поставщик</label>
+        <select asp-for="Order.ProviderId" asp-items="Model.ProviderList" class="form-control"></select>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Наименование</th>
+            <th>Количество</th>
+            <th>Единица измерения</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @for (var i = 0; i < Model.Order.OrderItems.Count; i++)
+        {
+            <tr>
+                <td><input class="form-control" asp-for="@Model.Order.OrderItems[i].Name"/></td>
+                <td><input class="form-control" asp-for="@Model.Order.OrderItems[i].Quantity" type="number" step="0.01"/></td>
+                <td><input class="form-control" asp-for="@Model.Order.OrderItems[i].Unit"/></td>
+                <td><button type="button" class="btn btn-danger" onclick="removeRow(this)">Удалить</button></td>
+                <input type="hidden" name="Order.OrderItems[@i].Id" value="@Model.Order.OrderItems[i].Id" />
+            </tr>
+        }
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4"><button type="button" class="btn btn-primary" onclick="addRow()">Добавить строку</button></td>
+        </tr>
+        </tfoot>
+    </table>
+    <div class="form-group">
+        <button type="submit" class="btn btn-success">Сохранить</button>
+    </div>
+</form>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert" asp-validation-summary="All"></div>
+}
+
+
+@section scripts {
+    <script>
+        function addRow() {
+            let table = document.querySelector('.table tbody');
+            let index = table.childElementCount;
+            let row = table.insertRow();
+            let nameCell = row.insertCell();
+            let quantityCell = row.insertCell();
+            let unitCell = row.insertCell();
+            let deleteCell = row.insertCell();
+            nameCell.innerHTML = `<input class="form-control" name="Order.OrderItems[${index}].Name" />`;
+            quantityCell.innerHTML = `<input class="form-control" name="Order.OrderItems[${index}].Quantity" />`;
+            unitCell.innerHTML = `<input class="form-control" name="Order.OrderItems[${index}].Unit" />`;
+            deleteCell.innerHTML = `<button type="button" class="btn btn-danger" onclick="removeRow(this)">Удалить</button>`;
+        }
+
+        function removeRow(button) {
+            let row = button.parentElement.parentElement;
+            let index = row.rowIndex-1;
+            row.parentElement.removeChild(row);
+            //Пересчет индексов
+            let table = document.querySelector('.table tbody');
+            let rows = table.querySelectorAll('tr');
+            console.log(index);
+            console.log(rows);
+            for (let i = index; i < rows.length; i++) {
+                let inputs = rows[i].querySelectorAll('input');
+                inputs[0].name = `Order.OrderItems[${i}].Name`;
+                inputs[1].name = `Order.OrderItems[${i}].Quantity`;
+                inputs[2].name = `Order.OrderItems[${i}].Unit`;
+            }
+        }
+    </script>
+}
