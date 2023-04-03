@@ -33,7 +33,9 @@ public class OrderController : Controller
 
         var enumerable = allOrders.ToList();
         var orderItemFilter = enumerable.SelectMany(order => order.OrderItems).Distinct().ToList();
+
         var orders = await _orders.GetFilteredOrdersAsync(filter);
+
         var orderFilters = new OrderFiltersViewModel
         {
             NumberFilter = enumerable.Select(order => order.Number).Distinct().ToList(),
